@@ -1,0 +1,51 @@
+import socket
+import time
+from Crypto.Cipher import PKCS1_OAEP
+from Crypto.PublicKey import RSA
+
+msj = input("Indique su mensaje secreto: ")
+file = open ("MensajeEntrada.txt","w")
+file.write(str(msj))
+file.close()
+
+archivo = open("MensajeEntrada.txt", mode="r")
+MensajeE = archivo.read()
+Mensaje = MensajeE
+Mensaje = str.encode(Mensaje)
+
+key = RSA.generate(2048)
+claveprivada = key.exportKey('PEM')
+clavepublica = key.publickey().exportKey('PEM')
+
+RSApublicKey = RSA.importKey(clavepublica)
+OAEP_cipher = PKCS1_OAEP.new(RSApublicKey)
+Msjencrip = OAEP_cipher.encrypt(Mensaje)
+
+RSAKey = RSA.importKey(claveprivada)
+OAEP_cipher = PKCS1_OAEP.new(RSAKey)
+Msjdesc = OAEP_cipher.decrypt(Msjencrip)
+
+file = open("MensajeEncriptado.txt","w")
+file.write(str(Msjencrip))
+file.close()
+print()
+file = open("MensajeRecibido.txt","w")
+file.write(str(Msjdesc))
+file.close()
+
+
+
+clavepublicam = bytes(clavepublica)
+mi_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+mi_socket.connect(("localhost", 8000))
+
+mensaje = "ENVIO CLAVE PUBLICA: \n"
+mi_socket.send(mensaje.encode())
+
+mi_socket.send(clavepublicam)
+
+respuesta = mi_socket.recv(1024).decode()
+print(respuesta)
+
+mi_socket.close()

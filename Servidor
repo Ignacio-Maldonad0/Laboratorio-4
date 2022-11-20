@@ -1,0 +1,23 @@
+import socket
+import time
+
+mi_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+mi_socket.bind(("localhost",8000))
+
+mi_socket.listen(5)
+
+while True:
+    conexion, addr = mi_socket.accept()
+    print ("Iniciando Conexion Privada")
+    time.sleep(1)
+    print(addr)
+    
+    mensaje = "Okey, Mensaje Recibido.\n Cerrando Conexion"
+    conexion.send(mensaje.encode())      
+    respuesta = conexion.recv(1024).decode()
+    print(respuesta)
+    
+    conexion.close()
+    
+    time.sleep(1)
